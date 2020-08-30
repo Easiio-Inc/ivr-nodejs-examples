@@ -24,6 +24,9 @@ This sample demostrates how to generate a varification code for IVR and ITR (htt
 # hubspot.js 
 This sample demostrates how to integrated Hubspot with Easiio call event (https://www.easiio.com/).
 
+# test_request
+This files has all test script for command line test verification of these JS. url is hardcoded to localhost, please change it to your own settings.
+
 ## Contributing
 
 Easiio, Inc development team (https://www.easiio.com/).
