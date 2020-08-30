@@ -1,0 +1,32 @@
+/// Easiio Inc, Here is the list of command line test for the nodejs API
+
+// stripe credit card test 
+curl -H "Content-Type:application/json" -X POST -d ' {"dtmf":"4242424242424242","to":"6509980003","from":"7885080002"}' http://localhost:1337/card_number
+
+curl -H "Content-Type:application/json" -X POST -d ' {"dtmf":"0624","to":"6509980003","from":"7885080002"}' http://localhost:1337/expiration_date
+
+curl -H "Content-Type:application/json" -X POST -d ' {"dtmf":"178","to":"6509980003","from":"7885080002"}' http://localhost:1337/security_code
+
+// get a varification code
+curl -H "Content-Type:application/json" -X POST -d ' {"dtmf":"0624","to":"6509980003","from":"+19255480000"}' http://localhost:1337/get_varification_code
+
+curl -H "Content-Type:application/json" -X POST -d ' {"code":"904177"}' http://localhost:1337/check_varification_code
+
+// twilio sms API test
+curl -H "Content-Type:application/json" -X POST -d ' {"dtmf":"0624","to":"6509980003","from":"+19255480000"}' http://localhost:1337/send_sms_twilio
+
+// call event 
+curl -H "Content-Type:application/json" -X POST -d ' {"caller":"19255480000","called":"6509980003","event":"event_ring"}' http://localhost:1337/call_event_general
+
+// call event handling
+curl -H "Content-Type:application/json" -X POST -d ' {"caller":"19255480000","called":"6509980003","event":"event_ring"}' http://localhost:1337/call_event_ring
+
+curl -H "Content-Type:application/json" -X POST -d ' {"caller":"19255480000","called":"6509980003","event":"event_ring"}' http://localhost:1337/call_event_general
+
+curl -H "Content-Type:application/json" -X POST -d ' {"caller":"19255480000","called":"6509980003","event":"event_answer"}' http://localhost:1337/call_event_answer
+
+curl -H "Content-Type:application/json" -X POST -d ' {"caller":"19255480000","called":"6509980003","event":"event_hangup"}' http://localhost:1337/call_event_hangup
+
+// test hubspot
+curl -H "Content-Type:application/json" -X POST -d '{"caller":"19255480000","called":"6509980003","event":"event_ring"}' http://localhost:1337/call_event_general
+
