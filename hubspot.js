@@ -91,6 +91,51 @@ const server = http.createServer(function (request, response) {
         response.write('[]');
         response.end('');
       });
+    } else if (request.url === "/contact_form_submition") {
+    var requestBody = '';
+      console.log("post contact_form_submition");
+      request.on('data', function(data) {
+        requestBody += data;
+        if(requestBody.length > 1e7) {
+          response.writeHead(413, 'Request Entity Too Large', {'Content-Type': 'text/html'});
+          response.end('<!doctype html><html><head><title>413</title></head><body>413: Request Entity Too Large</body></html>');
+        }
+      });
+      request.on('end', function() {
+        console.log("post end", requestBody);
+        var formData = JSON.parse( requestBody );
+        console.log("post contact_form_submition end 1.0", formData.name , " ", formData.email, " ", formData.phone, " ", formData.message);
+        var request = require("request");
+        var name = formData.name.split(/[ ,]+/);
+        var options = { method: 'POST',
+          url: 'https://api.hubapi.com/contacts/v1/contact/',
+          qs: { hapikey: apikey},
+          headers: 
+           { 
+             'Content-Type': 'application/json' },
+          body: 
+           { properties: 
+              [ { property: 'email', value: formData.email },
+                { property: 'firstname', value: name[0] },
+                { property: 'lastname', value: name[1] },
+                { property: 'website', value: '' },
+                { property: 'company', value: '' },
+                { property: 'phone', value: formData.phone },
+                { property: 'address', value: '' },
+                { property: 'city', value: '' },
+                { property: 'state', value: '' },
+                { property: 'zip', value: '' } ] },
+          json: true };
+
+        request(options, function (error, response, body) {
+          if (error) throw new Error(error);
+
+          console.log(body);
+        });
+        //var responseBody = [ { "id": 1, "action": "play", "text": "submit your form. name: "" voice mails are to your pre-configure cell phone by SMS." }]';
+        response.write('[ { "id": 1, "action": "play", "text": "submit your form. We will contact you soon." }]');
+        response.end('');
+      });
     } 
   }
 	
