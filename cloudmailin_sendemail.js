@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////
 // Easiio, Inc, Call Center https://www.easiio.com
-// Sample code to send SMS via twilio. This could be use with Easiio
-// IVR or ITR with Twilio API including SMS and other.
-// Please see article: https://www.easiio.com/wiki/nodejs_twilio_sms
+// Sample code to send email via cloudminin. This could be use with Easiio
+// IVR or ITR with cloudminin API.
+// 
 ///////////////////////////////////////////////////////////////////
 
 const http = require('http');
@@ -85,7 +85,7 @@ const server = http.createServer(function (request, response) {
         console.log("post end", requestBody);
         var formData = JSON.parse( requestBody );
         var number = Math.floor(Math.random() * 899999 + 100000);
-        console.log("send sms twilio post end 1.0", formData.name , " ", formData.email, " ", formData.message);
+        console.log("send email post: ", formData.name , " ", formData.email, " ", formData.message);
       
         sendMail (formData.email, formData.name);
           response.write('[ { "id": 1, "action": "play", "text": "The notification email send via cloudmailin: ' + number + '" }]');
