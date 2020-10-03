@@ -9,6 +9,11 @@ const http = require('http');
 
 var url = require( "url" );
 var queryString = require( "querystring" );
+var redis = require('redis');
+var redisClient = redis.createClient(); // default setting.
+
+const accountSid = 'AC49ab903dxxxxxxxxxxxxxxx';  // replace with your accountid
+const authToken = 'a4809c9e4000000000000000000000';  // replace with your token
 
 var sess = {};
 
@@ -34,7 +39,7 @@ const server = http.createServer(function (request, response) {
   } else if(request.method === "POST") {
     if (request.url === "/send_sms_twilio") {
       var requestBody = '';
-      console.log("post inbound 1.0");
+
       request.on('data', function(data) {
         requestBody += data;
         if(requestBody.length > 1e7) {
@@ -50,21 +55,100 @@ const server = http.createServer(function (request, response) {
         // Download the helper library from https://www.twilio.com/docs/node/install
         // Your Account Sid and Auth Token from twilio.com/console
         // DANGER! This is insecure. See http://twil.io/secure
-        const accountSid = 'AC49ab903d43fa67ab675xxxxxxxxxxxxxx';
-        const authToken = 'a4809c9e4e09e140e07440000000000000';
+
         const client = require('twilio')(accountSid, authToken);
 
         client.messages
           .create({
              body: 'This is confirmed message of your order has been placed. comfirmation number: ' + number,
-             from: '+15614492296',
+             from: '8664607666',
              to: formData.from
            })
           .then(message => console.log(message.sid));
         response.write('[ { "id": 1, "action": "play", "text": "The confirmation message send via sms: ' + number + '" }]');
         response.end('');
       });
-    } 
+    } else if (request.url === "/send_verification_code_itr") {
+      var requestBody = '';
+      request.on('data', function(data) {
+        requestBody += data;
+        if(requestBody.length > 1e7) {
+          response.writeHead(413, 'Request Entity Too Large', {'Content-Type': 'text/html'});
+          response.end('<!doctype html><html><head><title>413</title></head><body>413: Request Entity Too Large</body></html>');
+        }
+      });
+      request.on('end', function() {
+        console.log("post end", requestBody);
+        var formData = JSON.parse( requestBody );
+        var number = Math.floor(Math.random() * 899999 + 100000);
+        console.log("send sms twilio phone: ", formData.phone);
+        const client = require('twilio')(accountSid, authToken);
+
+        redisClient.set(formData.phone,number);
+        redisClient.expire(formData.phone,600); // setting expiry for 10 minutes.
+
+        client.messages
+          .create({
+             body: 'Your Easiio verification code: ' + number,
+             from: '+15614492296',
+             to: formData.phone
+           })
+          .then(message => console.log(message.sid));
+        response.write('[ { "id": 1, "action": "play", "text": "The varification code send via sms: ' + number + '" }]');
+        response.end('');
+      });
+    } else if (request.url === "/check_varification_code") {
+      var requestBody = '';
+      request.on('data', function(data) {
+        requestBody += data;
+        if(requestBody.length > 1e7) {
+          response.writeHead(413, 'Request Entity Too Large', {'Content-Type': 'text/html'});
+          response.end('<!doctype html><html><head><title>413</title></head><body>413: Request Entity Too Large</body></html>');
+        }
+      });
+      request.on('end', function() {
+        console.log("post end", requestBody);
+        var formData = JSON.parse( requestBody );
+
+        console.log("post end code: ", formData.code, " phone: ", formData.phone);
+
+        var code = redisClient.get(formData.phone,function(err,reply) {
+
+          if(err) {
+            console.log ("Error in redis.");
+            response.write('[ { "id": 1, "action": "play", "text": "Error in redis.' + queryObject.code + '" }]');
+            response.end('');
+            //return callback(true,"Error in redis");
+          }
+          if(reply === null) {
+            console.log ("Invalid email address.");
+            response.write('[ { "id": 1, "action": "play", "text": "Invalid email address: ' + email + '" }]');
+            response.end('');
+            return 1;
+            //return callback(true,"Invalid email address");
+          }
+          return_code = reply;
+          console.log ("email check return_code:." + reply);
+          if (return_code == formData.code) {
+            console.log("verification successful. ", formData.phone, " ", return_code);
+            response.writeHead(200, {'Content-Type': 'text/html'});
+            response.write('<!doctype html><html><head><title>email verification successful</title></head><body>email verification successful</body></html>');
+            response.end();
+
+          } else {
+            response.writeHead(200, {'Content-Type': 'text/html'});
+            response.write('<!doctype html><html><head><title>email verification failed</title></head><body>email verification failed. Please try again</body></html>');
+            response.end();
+            console.log("verification failed. correct code: ", formData.code, ", failed code: ", return_code);
+
+          }
+          
+        });
+
+        
+        
+      });
+    }
     
   } else {
     response.writeHead(405, 'Method Not Supported', {'Content-Type': 'text/html'});
