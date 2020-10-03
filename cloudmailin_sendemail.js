@@ -22,14 +22,6 @@ var formOutput = '<html><body>'
   + '<div><label for="Branch">Branch:</label><input type="text" id="Branch" name="Branch" value="master" /></div>'
   + '<div><input id="ListCommits" type="submit" value="List Commits" /></div></fieldset></form></body></html>';
 
-// smtp.cloudmta.net
-// Port
-// 587 or 2525
-// Username
-// 12b2f948c506dea7
-// API Key / Password
-// 74SSvuFbJ7bo1rpUrM3yGjio
-
 async function sendMail(email, name) {
   let hostname = "xxxxx.cloudmta.net";  // replace with your cloudmailin account hostname.
   let username = "12b20000000000";  // replace with your cloudmailin account username
